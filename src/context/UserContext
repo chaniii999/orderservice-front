@@ -1,0 +1,44 @@
+import React, { useEffect, useState } from 'react';
+
+const AuthContext = React.createContext({
+  isLoggedIn: false, // 로그인 여부
+  onLogin: () => {},
+  onLogOut: () => {},
+  userRole: '',
+  userName: '',
+});
+
+export const AuthContextProvider = (props) => {
+  const [isLoggedIn, setIsLoggedIn] = useState();
+  const loginHandler = (token, id, role) => {
+    // 백엔드가 응답한 json 정보를 클라이언트에 보관;
+    localStorage.setItem('ACCESS_TOKEN, token');
+    localStorage.setItem('USER_ID', id);
+    localStorage.setItem('USER_ROLE', role);
+
+    setIsLoggedIn(true);
+  };
+
+  const logoutHandler = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('ACCESS_TOKEN')) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        onLogin: loginHandler,
+        onLogOut: logoutHandler,
+      }}
+    >
+      {props.children}
+    </AuthContext.Provider>
+  );
+};
